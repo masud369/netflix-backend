@@ -2,10 +2,9 @@ const express = require("express");
 var cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 var bodyParser = require("body-parser");
-const port = 5000;
-const uri = `mongodb+srv://doctors:doctorsxyz@cluster0.kz5wbn2.mongodb.net/doctorsPortal?retryWrites=true&w=majority`;
+require('dotenv').config();
+const uri = `mongodb+srv://${process.env.UNAME}:${process.env.PASSWORD}@cluster0.kz5wbn2.mongodb.net/${process.env.DBNAME}?retryWrites=true&w=majority`;
 
-// pass:'doctorsxyz',"doctors"
 
 const app = express();
 app.use(bodyParser.json());
@@ -18,7 +17,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 client.connect((err) => {
-  const appointmentCollections = client.db("doctorsPortal").collection("users");
+  const appointmentCollections = client.db(`${process.env.DBNAME}`).collection("users");
   console.log("database connected properly");
   app.post("/abc", (req, res) => {
     const { email, data } = req.body;
@@ -52,11 +51,10 @@ client.connect((err) => {
 
   app.get("/liked/movie", (req, res) => {
     const { email } = req.query;
-    appointmentCollections.find({ email }).toArray((err, documents) => {
-      if (err) console.log(err);
-      res.send(documents);
+    const user = appointmentCollections.find({ email });
+      console.log(user)
     });
-  });
+  
   app.delete("/delete", (req, res) => {
     const { mid } = req.query;
     console.log(mid);
@@ -85,6 +83,6 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(process.env.PORT || port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Example app listening on port ${process.env.PORT}`);
 });
